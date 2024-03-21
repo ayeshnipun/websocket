@@ -1,21 +1,21 @@
-const socketIO = require("socket.io");
-
 let io;
 
 const initializeSocketIO = (server) => {
-  console.log("first");
-  io = socketIO(server);
-
-  io.on("connection", (socket) => {
-    console.log("A user connected");
-
-    socket.on("disconnect", () => {
-      console.log("User disconnected");
-    });
+  io = require("socket.io")(server, {
+    pingTimeout: 60000,
+    cors: {
+      origin: "*",
+    },
   });
 
-  io.on("error", (error) => {
-    console.error("Socket.IO error:", error);
+  // Socket.IO connection handler
+  io.on("connection", (socket) => {
+    console.log("WebSocket client connected");
+
+    // Handle incoming messages
+    socket.on("message", (message) => {
+      console.log("received: ", message);
+    });
   });
 };
 

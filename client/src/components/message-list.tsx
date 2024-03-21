@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 
+interface Message {
+  messageId: string;
+  sender: string;
+  reciever: string;
+  content: string;
+}
+
 const MessageDisplay = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     const socket = io("http://localhost:8000");
 
     // Event listener for 'messageSent' event
-    socket.on("message", (message: string) => {
-      console.log(message)
+    socket.on("message", (message: Message) => {
+      console.log(message);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
@@ -23,13 +30,16 @@ const MessageDisplay = () => {
     };
   }, []); // Only run once on component mount
 
-  // return <p>asd</p>
   return (
     <div>
       <h1>Messages</h1>
       <ul>
         {messages.map((message, index) => (
-          <li key={index}>{message}</li>
+          <>
+            <div key={index}>
+              {message.sender}: {message.content}
+            </div>
+          </>
         ))}
       </ul>
     </div>

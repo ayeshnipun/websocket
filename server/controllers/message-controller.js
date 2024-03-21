@@ -1,57 +1,41 @@
 const asyncHandler = require("express-async-handler");
-const { v4: uuidv4 } = require("uuid");
-const { io } = require("../configs/socket-config");
 
-// const socketIO = require("socket.io");
+let io;
 
-// let io;
+const initializeSocketIO = (server) => {
+  io = require("socket.io")(server, {
+    pingTimeout: 60000,
+    cors: {
+      origin: "*",
+    },
+  });
 
-// const initializeSocketIO = (server) => {
-//   io = require("socket.io")(server, {
-//     pingTimeout: 60000,
-//     cors: {
-//       origin: "*",
-//     },
-//   });
+  // Socket.IO connection handler
+  io.on("connection", (socket) => {
+    console.log("WebSocket client connected");
 
-//   io.on("connection", (socket) => {
-//     console.log("A user connected");
-
-//     socket.on("disconnect", () => {
-//       console.log("User disconnected");
-//     });
-//   });
-
-//   io.on("error", (error) => {
-//     console.error("Socket.IO error:", error);
-//   });
-// };
-
-// module.exports = { io, initializeSocketIO };
+    // Handle incoming messages
+    socket.on("message", (message) => {
+      console.log("received: ", message);
+    });
+  });
+};
 
 const sendMessage = asyncHandler(async (req, res) => {
   const { messageId, sender, reciever, content } = req.body;
 
-  const id = uuidv4();
-
-  console.log(io)
-  io.to(messageId).emit("message", {
-    id,
+  io.emit("message", {
     messageId,
     sender,
     reciever,
     content,
   });
 
-  return res.json({
-    id,
-    messageId,
-    sender,
-    reciever,
-    content,
-  });
+  res.status(200).json({ success: true, message: "Message sent" });
 });
 
 module.exports = {
+  io,
+  initializeSocketIO,
   sendMessage,
 };
