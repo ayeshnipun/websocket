@@ -61,5 +61,5 @@ jobs:
         with:
           app-name: 'app-bs-stack'
           slot-name: 'Production'
-          package: ./server
+          package: .
           
